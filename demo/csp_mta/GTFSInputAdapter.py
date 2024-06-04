@@ -7,10 +7,8 @@ from csp import ts
 from csp.impl.pushadapter import PushInputAdapter
 from csp.impl.wiring import py_push_adapter_def
 
-from .compiled_protobuf import gtfs_realtime_pb2
+from .compiled_protobuf.gtfs_realtime_pb2 import FeedMessage
 from .mta_util import *
-
-logging.basicConfig(level=logging.INFO)
 
 __all__ = ("GTFSRealtimeInputAdapter",)
 
@@ -64,7 +62,7 @@ class GTFSRealtimeAdapterImpl(PushInputAdapter):
             if self._raw:
                 self.push_tick(response.content)  # raw bytes for recording
             else:
-                feed = gtfs_realtime_pb2.FeedMessage()
+                feed = FeedMessage()
                 feed.ParseFromString(response.content)
                 self.push_tick(feed)
             time.sleep(MTA_FEED_UPDATE_TIME.total_seconds())
@@ -73,7 +71,7 @@ class GTFSRealtimeAdapterImpl(PushInputAdapter):
 GTFSRealtimeInputAdapter = py_push_adapter_def(
     "GTFSRealtimeInputAdapter",
     GTFSRealtimeAdapterImpl,
-    ts[object],
+    ts[FeedMessage],
     service=str,
     publish_raw_bytes=bool,
 )
